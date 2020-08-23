@@ -1,7 +1,7 @@
 import firebase from 'firebase/app'
 
 firebase.initializeApp({
-  apiKey: "AIzaSyDTXsRi06Os2jlTEWCqT6NUMUrCP9Teckw",
+  apiKey: process.env.REACT_APP_API_KEY,
   authDomain: "kyc-app-65a63.firebaseapp.com",
   databaseURL: "https://kyc-app-65a63.firebaseio.com",
   projectId: "kyc-app-65a63",

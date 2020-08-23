@@ -26,6 +26,7 @@ const SignUp = withRouter(({ history }) => {
         try {
           let data = { firstName, lastName, userName, email, password };
           let userProfile = await auth.signUp(data)
+          console.log(userProfile);
           console.log('success signing up')
           dispatch({
             action:'SET_AUTH_USER',
