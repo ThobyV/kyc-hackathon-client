@@ -1,12 +1,14 @@
 import firebase from 'firebase/app'
 
 firebase.initializeApp({
-  apiKey: process.env.REACT_APP_API_KEY,
-  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
-  databaseURL: process.env.REACT_APP_DATABASE_URL,
-  projectId: process.env.REACT_APP_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_MESSAGE_SENDER_ID,
+  apiKey: "AIzaSyDTXsRi06Os2jlTEWCqT6NUMUrCP9Teckw",
+  authDomain: "kyc-app-65a63.firebaseapp.com",
+  databaseURL: "https://kyc-app-65a63.firebaseio.com",
+  projectId: "kyc-app-65a63",
+  storageBucket: "kyc-app-65a63.appspot.com",
+  messagingSenderId: "795090227071",
+  appId: "1:795090227071:web:146c0262754550db4ad44a",
+  measurementId: "G-XKNWNY81PY"
 });
 
 export default firebase;

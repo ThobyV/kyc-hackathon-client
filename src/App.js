@@ -5,26 +5,32 @@ import axios from 'redaxios';
 import firebase from './firebase/firebase'
 import auth from './firebase/auth';
 
-import { useAppState, useAuthState } from './AppContext'
-import { AppProvider, AuthProvider } from './AppContext'
+import { useAppState, AppProvider } from './AppContext'
 
 const Profile = () => <b>hi</b>
 
 const SignUp = withRouter(({ history }) => {
-  const [firstName, setFirstName] = useState(null);
-  const [lastName, setLastName] = useState(null);
-  const [userName, setUserName] = useState(null);
-  const [email, setEmail] = useState(null);
-  const [password, setPassword] = useState(null);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [userName, setUserName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [runSignUp, setRunSignUp] = useState(false);
+
+  const [, dispatch] = useAppState();  
+  
 
   useEffect(() => {
     const runReq = async () => {
       if (runSignUp) {
         try {
           let data = { firstName, lastName, userName, email, password };
-          await auth.signUp(data)
+          let userProfile = await auth.signUp(data)
           console.log('success signing up')
+          dispatch({
+            action:'SET_AUTH_USER',
+            payload: userProfile, 
+          })
           history.push('/')
         } catch (error) {
           console.log(error);
@@ -33,50 +39,57 @@ const SignUp = withRouter(({ history }) => {
     }
     runReq();
   }, [runSignUp])
-
+    
   const onSubmit = e => {
     e.preventDefault();
+    setRunSignUp(true);
   }
 
   return (
-    <div class="wrapper">
-    <div class="login">    
-      <h1>SIGNUP</h1>
-      <form class="" onSubmit={onSubmit}>
-        <input type="text" placeholder="first name" value={firstName}
-          onInput={(e) => setFirstName(e.target.value)} />
-        <input type="text" placeholder="last name" value={lastName}
-          onInput={(e) => setLastName(e.target.value)} />
-        <input type="text" placeholder="username" value={userName}
-          onInput={(e) => setUserName(e.target.value)} />
-        <input type="text" placeholder="email" value={email}
-          onInput={(e) => setEmail(e.target.value)} />
-        <input type="password" placeholder="password" value={password}
-          onInput={(e) => setPassword(e.target.value)} />
+    <div className="wrapper">
+      <div className="flex-auth">
+        <h1>Welcome back</h1>
+        <h1 className="pad-t">Please Sign in</h1>        
+        <form onSubmit={onSubmit}>
+          <input type="text" placeholder="first name" value={firstName}
+            onChange={(e) => setFirstName(e.target.value)} />
+          <input type="text" placeholder="last name" value={lastName}
+            onChange={(e) => setLastName(e.target.value)} />
+          <input type="text" placeholder="username" value={userName}
+            onChange={(e) => setUserName(e.target.value)} />
+          <input type="text" placeholder="email" value={email}
+            onChange={(e) => setEmail(e.target.value)} />
+          <input type="password" placeholder="password" value={password}
+            onChange={(e) => setPassword(e.target.value)} />
 
-        <button class={runSignUp && ''}
-          onClick={() => setRunSignUp(true)}
-          type="submit">Submit</button>
-      </form>
-    </div>
+          <button className=""
+            type="submit">Submit</button>
+        </form>
+      </div>
     </div>
   );
 })
 
 const SignIn = withRouter(({ history }) => {
-  const [email, setEmail] = useState(null);
-  const [password, setPassword] = useState(null);
-  const [runSignIn, setRunSignIn] = useState(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [runSignIn, setRunSignIn] = useState(false);
 
   const [btnDisabled, setBtnDisabled] = useState(false);
+
+  const [, dispatch] = useAppState();
 
   useEffect(() => {
     const runReq = async () => {
       if (runSignIn) {
         try {
           let data = { email, password };
-          await auth.signIn(data);
+          let userProfile = await auth.signIn(data);
           console.log('sucess signing in');
+          dispatch({
+            action:'SET_AUTH_USER',
+            payload: userProfile, 
+          })
           history.push('/')
         } catch (error) {
           console.log(error);
@@ -92,15 +105,18 @@ const SignIn = withRouter(({ history }) => {
   }
 
   return (
-    <div class={''}>
-      <h1>SIGNUP</h1>
-      <form class={''} onSubmit={onSubmit}>
-        <input type="text" placeholder="email" value={email}
-          onInput={(e) => setEmail(e.target.value)} />
-        <input type="password" placeholder="password" value={password}
-          onInput={(e) => setPassword(e.target.value)} />
-        <button class={btnDisabled && ''} type="submit">Submit</button>
-      </form>
+    <div className="wrapper">
+      <div className="flex-auth">
+        <h1>Sign In</h1>
+        <h1 className="pad-t">Please Sign in</h1>    
+        <form className={''} onSubmit={onSubmit}>
+          <input type="text" placeholder="email" value={email}
+            onChange={(e) => setEmail(e.target.value)} />
+          <input type="password" placeholder="password" value={password}
+            onChange={(e) => setPassword(e.target.value)} />
+          <button className="" type="submit">Submit</button>
+        </form>
+      </div>
     </div>
   );
 
@@ -121,13 +137,13 @@ const Routes = () => (
 )
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
-  const [authUser, initializing] = useAuthState();
+  const [{userProfile}] = useAppState();
   return (
     <Route
       {...rest}
       render={props =>
-        !initializing ? (
-          authUser.uid ? (
+        (
+          userProfile ? (
             <Component {...props} />
           ) : (
               <Redirect to={{
@@ -137,9 +153,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
                 }
               }} />
             )
-        ) : (
-            <b>loading...</b>
-          )
+        )
       }
     />
   );

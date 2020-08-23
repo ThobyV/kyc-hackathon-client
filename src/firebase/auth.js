@@ -1,29 +1,20 @@
 import firebase from './firebase';
+import 'firebase/auth';
+
 import axios from 'redaxios';
 import { baseUrl, defaultHeaders } from './../api'
 
 class Auth {
     constructor() {
-        this.authRef = firebase.auth();
-    }
-
-    async signInWithCustomToken(token) {
-        try {
-            await this.authRef.signInWithCustomToken(token);
-            return Promise.resolve('signed in user successfully');
-        } catch (error) {
-            return Promise.reject(error);
-        }
     }
 
     async signIn(data) {
         try {
-            let token = await axios.post(`${baseUrl}/signin`,
+            let user = await axios.post(`${baseUrl}/signin`,
                 data,
                 defaultHeaders,
             )
-            let triggerAuthStateOb = await this.signInWithCustomToken(token);
-            return Promise.resolve('auth state observer triggered with user details')
+            return Promise.resolve(user)
         } catch (error) {
             return Promise.reject(error);
         }
@@ -31,21 +22,14 @@ class Auth {
 
     async signUp(data) {
         try {
-            let createUser = axios.post(`${baseUrl}/signup`,
+            let user = await axios.post(`${baseUrl}/signup`,
                 data,
                 defaultHeaders,
             )
-            return Promise.resolve('user created');
+            return Promise.resolve(user);
         } catch (error) {
             return Promise.reject(error);
         }
-    }
-
-    onAuthStateObserver(callback, fallback) {
-        const unsubscribe = this.authRef.onAuthStateChanged((currentUser) => {
-            callback(currentUser)
-        })
-        return unsubscribe;
     }
 
 }

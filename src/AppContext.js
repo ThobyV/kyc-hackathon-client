@@ -1,20 +1,18 @@
 import React, { createContext, useReducer, useContext, useEffect, useState } from "react";
 import auth from './firebase/auth';
 
-const AuthContext = createContext();
 const AppContext = createContext();
 
 const initialState = {
-    profile: null,
-    initialized: false,
+    userProfile: null,
 }
 
 const reducer = (state, action) => {
     switch (action.type) {
-        case "SET_PROFILE":
+        case "SET_AUTH_USER":
             return {
                 ...state,
-                conversations: [...action.payload, ...state.conversations],
+                userProfile: [...action.payload, ...state.userProfile],
             };
         default:
             throw new Error();
@@ -22,9 +20,8 @@ const reducer = (state, action) => {
 };
 
 const AppProvider = ({ children }) => {
-    const [authUser] = useAuthState();
-    const [loading, setLoading] = useState(false);
     const [state, dispatch] = useReducer(reducer, initialState);
+    const [loading, setLoading] = useState(false);    
 
     return (
         <AppContext.Provider value={[state, dispatch, loading]}>
@@ -32,35 +29,9 @@ const AppProvider = ({ children }) => {
         </AppContext.Provider>)
 }
 
-const AuthProvider = ({ children }) => {
-    const [authUser, setAuthUser] = useState({});
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateObserver(setAuthUser);
-        if (authUser) {
-            console.log(authUser.uid);
-            const { displayName, uid } = authUser;
-            setAuthUser({ displayName, uid });
-        }
-        return () => unsubscribe();
-    }, [authUser])
-
-
-    return (
-        <AuthContext.Provider value={[authUser, loading, setLoading]}>
-            {children}
-        </AuthContext.Provider>
-    );
-}
-
 const useAppState = () => useContext(AppContext);
-
-const useAuthState = () => useContext(AuthContext);
 
 export {
     AppProvider,
-    AuthProvider,
     useAppState,
-    useAuthState,
 }
