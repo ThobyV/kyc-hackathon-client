@@ -1,100 +1,116 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, withRouter, Route, Redirect, Link, Switch } from "react-router-dom";
+
 import axios from 'redaxios';
-import firebase from './Firebase/firebaseConfig'
+import firebase from './firebase/firebase'
+import auth from './firebase/auth';
 
 import { useAppState, useAuthState } from './AppContext'
 import { AppProvider, AuthProvider } from './AppContext'
 
 const Profile = () => <b>hi</b>
 
-const SignUp = () => {
+const SignUp = withRouter(({ history }) => {
   const [firstName, setFirstName] = useState(null);
   const [lastName, setLastName] = useState(null);
   const [userName, setUserName] = useState(null);
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
-  const [runAuth, setRunAuth] = useState(false);
+  const [runSignUp, setRunSignUp] = useState(false);
 
   useEffect(() => {
     const runReq = async () => {
-      if (runAuth) {
+      if (runSignUp) {
         try {
-          const data = { firstName, lastName, userName, email, password };
-          const authToken = await axios.post(`${baseUrl}/admin/signup`,
-            data,
-            defaultHeaders,
-          )
+          let data = { firstName, lastName, userName, email, password };
+          await auth.signUp(data)
+          console.log('success signing up')
+          history.push('/')
         } catch (error) {
           console.log(error);
         }
       }
     }
     runReq();
-  }, [runAuth])
+  }, [runSignUp])
 
   const onSubmit = e => {
     e.preventDefault();
   }
 
   return (
-    <div class={style.wrapper}>
+    <div class="wrapper">
+    <div class="login">    
       <h1>SIGNUP</h1>
-      <form class={style.form} onSubmit={onSubmit}>
-        <input type="text" placeholder="fullname" value={displayName}
-          onInput={(e) => setDisplayName(e.target.value)} />
+      <form class="" onSubmit={onSubmit}>
+        <input type="text" placeholder="first name" value={firstName}
+          onInput={(e) => setFirstName(e.target.value)} />
+        <input type="text" placeholder="last name" value={lastName}
+          onInput={(e) => setLastName(e.target.value)} />
+        <input type="text" placeholder="username" value={userName}
+          onInput={(e) => setUserName(e.target.value)} />
         <input type="text" placeholder="email" value={email}
           onInput={(e) => setEmail(e.target.value)} />
         <input type="password" placeholder="password" value={password}
           onInput={(e) => setPassword(e.target.value)} />
-        <input type="text" placeholder="adminCode: 1" value={adminCode}
-          onInput={(e) => setAdminCode(e.target.value)} />
-        <button class={runAuth && style.disabled}
-          onClick={() => setRunAuth(true)}
+
+        <button class={runSignUp && ''}
+          onClick={() => setRunSignUp(true)}
           type="submit">Submit</button>
       </form>
     </div>
+    </div>
   );
-}
+})
 
-const SignIn = () => {
+const SignIn = withRouter(({ history }) => {
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
-  const [authToken, setAuthToken] = useState(null);
+  const [runSignIn, setRunSignIn] = useState(null);
 
   const [btnDisabled, setBtnDisabled] = useState(false);
 
   useEffect(() => {
-    if (authToken) {
-      window.localStorage.setItem('uid', authToken)
-      route('/dashboard', true);
+    const runReq = async () => {
+      if (runSignIn) {
+        try {
+          let data = { email, password };
+          await auth.signIn(data);
+          console.log('sucess signing in');
+          history.push('/')
+        } catch (error) {
+          console.log(error);
+        }
+      }
     }
-  }, [authToken])
+    runReq();
+  }, [runSignIn])
 
   const onSubmit = e => {
     e.preventDefault();
-    setAuthToken('fssssss');
+    setRunSignIn(true);
   }
 
   return (
-    <div class={style.wrapper}>
+    <div class={''}>
       <h1>SIGNUP</h1>
-      <form class={style.form} onSubmit={onSubmit}>
+      <form class={''} onSubmit={onSubmit}>
         <input type="text" placeholder="email" value={email}
           onInput={(e) => setEmail(e.target.value)} />
         <input type="password" placeholder="password" value={password}
           onInput={(e) => setPassword(e.target.value)} />
-        <button class={btnDisabled && style.disabled} type="submit">Submit</button>
+        <button class={btnDisabled && ''} type="submit">Submit</button>
       </form>
     </div>
   );
 
-}
+})
 
 const Routes = () => (
   <Router>
     <Switch>
       <Route exact path="/signin" render={() => <SignIn />} />
+      <Route exact path="/signup" render={() => <SignUp />} />
       <PrivateRoute
         exact
         path="/"
