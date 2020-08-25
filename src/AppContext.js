@@ -4,15 +4,27 @@ import auth from './firebase/auth';
 const AppContext = createContext();
 
 const initialState = {
-    userProfile: null,
+    userProfile: {},
+    idToken: null,
+    bvnData: {},
 }
 
 const reducer = (state, action) => {
     switch (action.type) {
-        case "SET_AUTH_USER":
+        case "SET_USER_PROFILE":
             return {
                 ...state,
-                userProfile: [...action.payload, ...state.userProfile],
+                userProfile: { ...action.payload, ...state.userProfile },
+            };
+        case "SET_ID_TOKEN":
+            return {
+                ...state,
+                idToken: action.payload,
+            };
+        case "SET_BVN_DETAILS":
+            return {
+                ...state,
+                bvnData:  { ...action.payload},
             };
         default:
             throw new Error();
@@ -21,10 +33,15 @@ const reducer = (state, action) => {
 
 const AppProvider = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
-    const [loading, setLoading] = useState(false);    
+
+    useEffect(() => {
+        //handle auth state changes
+        const unsubscribe = auth.onAuthStateObserver(dispatch);
+        return () => unsubscribe();
+    }, [state.userProfile.uid]);
 
     return (
-        <AppContext.Provider value={[state, dispatch, loading]}>
+        <AppContext.Provider value={[state, dispatch]}>
             {children}
         </AppContext.Provider>)
 }

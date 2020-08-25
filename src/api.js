@@ -7,7 +7,16 @@ const defaultHeaders = {
     }
 }
 
+const authHeaders = (idToken) => ({
+    headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': idToken,
+    }
+})
+
 export {
     baseUrl,
     defaultHeaders,
+    authHeaders,
 }
